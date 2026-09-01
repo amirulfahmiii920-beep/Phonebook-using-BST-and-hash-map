@@ -1,0 +1,9 @@
+# Build artefacts
+*.o
+*.exe
+phonebook
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
