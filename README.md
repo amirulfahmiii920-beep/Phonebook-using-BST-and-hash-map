@@ -6,7 +6,7 @@ lookup. Each structure does the job the other is bad at.
 
 > **Group project** — BEJ32103 Data Structures and Algorithms,
 > Universiti Tun Hussein Onn Malaysia, Semester 2 2024/2025.
-> Team of 6. My contribution: _[fill this in]_.
+> Team of 6.
 
 ---
 
