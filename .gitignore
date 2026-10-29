@@ -2,6 +2,7 @@
 *.o
 *.exe
 phonebook
+tests/run_tests
 
 # Editor / OS
 .vscode/

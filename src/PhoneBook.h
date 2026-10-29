@@ -13,7 +13,8 @@
 std::string toLower(const std::string& str);
 
 // Returns true if the phone number is plausibly valid.
-// Accepts digits, spaces and dashes; requires 7 to 15 digits overall.
+// Accepts digits, spaces, dashes and one leading '+'; requires 7 to 15
+// digits overall.
 bool isValidPhoneNumber(const std::string& phoneNumber);
 
 // PhoneBook stores contacts in two structures at once:

@@ -15,7 +15,15 @@ $(TARGET): $(OBJS)
 run: $(TARGET)
 	./$(TARGET)
 
-clean:
-	rm -f $(OBJS) $(TARGET)
+TEST_TARGET := tests/run_tests
 
-.PHONY: all run clean
+$(TEST_TARGET): tests/test_phonebook.cpp src/PhoneBook.cpp src/PhoneBook.h src/Contact.h
+	$(CXX) $(CXXFLAGS) -o $@ tests/test_phonebook.cpp src/PhoneBook.cpp
+
+test: $(TEST_TARGET)
+	./$(TEST_TARGET)
+
+clean:
+	rm -f $(OBJS) $(TARGET) $(TEST_TARGET)
+
+.PHONY: all run test clean

@@ -27,11 +27,15 @@ static std::string trim(const std::string& s) {
 }
 
 bool isValidPhoneNumber(const std::string& phoneNumber) {
+    const std::string number = trim(phoneNumber);
     int digits = 0;
-    for (unsigned char c : phoneNumber) {
+    for (std::size_t i = 0; i < number.size(); ++i) {
+        const unsigned char c = static_cast<unsigned char>(number[i]);
         if (std::isdigit(c)) {
             ++digits;
-        } else if (c != ' ' && c != '-' && c != '+') {
+        } else if (c == '+' && i == 0) {
+            continue;       // country code prefix, only allowed first
+        } else if (c != ' ' && c != '-') {
             return false;   // reject letters and other symbols
         }
     }
@@ -137,8 +141,11 @@ TreeNode* PhoneBook::deleteNode(TreeNode* node,
         node->data = successor->data;
         node->key  = successor->key;
 
+        // Pass a copy of the key: the successor node (and its key) is
+        // freed inside this call.
+        const std::string successorKey = successor->key;
         bool dummy = false;
-        node->right = deleteNode(node->right, successor->key, dummy);
+        node->right = deleteNode(node->right, successorKey, dummy);
     }
     return node;
 }
@@ -278,12 +285,14 @@ bool PhoneBook::loadFromFile(const std::string& filename) {
     while (std::getline(file, line)) {
         if (trim(line).empty()) continue;
 
-        const auto comma = line.find(',');
+        // Split on the LAST comma. A phone number can never contain a
+        // comma, but a name can ("Tan, Ali").
+        const auto comma = line.rfind(',');
         if (comma == std::string::npos) { ++skipped; continue; }
 
         const std::string name  = trim(line.substr(0, comma));
         const std::string phone = trim(line.substr(comma + 1));
-        if (name.empty()) { ++skipped; continue; }
+        if (name.empty() || !isValidPhoneNumber(phone)) { ++skipped; continue; }
 
         // updateHash = false: the tree is built first, then the map is
         // rebuilt in one pass below. Same result, one less map write per row.
@@ -294,7 +303,10 @@ bool PhoneBook::loadFromFile(const std::string& filename) {
     file.close();
 
     std::cout << "Loaded " << loaded << " contact(s) from " << filename;
-    if (skipped) std::cout << " (" << skipped << " malformed line(s) skipped)";
     std::cout << ".\n";
+    if (skipped) {
+        std::cout << "Warning: " << skipped << " malformed line(s) skipped. "
+                     "They will be removed from the file the next time it is saved.\n";
+    }
     return true;
 }
