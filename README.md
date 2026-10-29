@@ -11,16 +11,16 @@ other is bad at.
 Enter your choice: 2
 Enter name to search (type 'cancel' to return to menu): siti
 No exact match. 1 similar contact(s):
-  Siti Zubaidah - 013-4455 6677
+  Siti Zubaidah - 012-000 0003
 
 Enter your choice: 5
 Contacts (4):
   NAME                        PHONE
   --------------------------------------------
-  Ahmad Faizal                011-2233 4455
-  Nurul Aina                  012-9876 5432
-  Siti Zubaidah               013-4455 6677
-  Zamil Hakim                 011-1411 6914
+  Ahmad Faizal                012-000 0001
+  Nurul Aina                  012-000 0002
+  Siti Zubaidah               012-000 0003
+  Zamil Hakim                 012-000 0004
 ```
 
 ## The design decision
@@ -124,7 +124,7 @@ The same tests were run against the code before these fixes, and 5 of the 38 che
 
 | Problem | Evidence | Fix |
 |---|---|---|
-| A name with a comma was corrupted after saving and loading | Adding "Tan, Ali" with 012-345 6789 and restarting gave name "Tan" with phone "Ali,012-345 6789" | Lines are split on the **last** comma, since a phone number can never contain one |
+| A name with a comma was corrupted after saving and loading | Adding "Tan, Ali" with 012-000 0009 and restarting gave name "Tan" with phone "Ali,012-000 0009" | Lines are split on the **last** comma, since a phone number can never contain one |
 | `+` was accepted anywhere in a number | "12+34-5678" was saved as a valid number | `+` is only allowed as the first character |
 | Bad numbers in the data file were loaded | "Bad Number,not a phone" was loaded as a contact | Loaded numbers go through the same validation as typed ones; failures count as malformed lines |
 | Skipped lines disappeared without warning | Exit saves the file, so skipped lines were lost silently | A warning now says skipped lines will be removed on the next save |

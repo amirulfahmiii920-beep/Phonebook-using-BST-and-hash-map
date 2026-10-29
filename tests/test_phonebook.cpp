@@ -42,8 +42,8 @@ std::string readFile(const std::string& path) {
 const std::string TMP_FILE = "tests/tmp_contacts.txt";
 
 void testPhoneValidation() {
-    check(isValidPhoneNumber("011-2233 4455"), "accepts a Malaysian mobile with dash and space");
-    check(isValidPhoneNumber("+60 12-345 6789"), "accepts a leading +");
+    check(isValidPhoneNumber("012-000 0001"), "accepts a Malaysian mobile with dash and space");
+    check(isValidPhoneNumber("+60 12-000 0010"), "accepts a leading +");
     check(isValidPhoneNumber("1234567"), "accepts exactly 7 digits");
     check(isValidPhoneNumber("123456789012345"), "accepts exactly 15 digits");
     check(!isValidPhoneNumber("123456"), "rejects 6 digits");
@@ -55,26 +55,26 @@ void testPhoneValidation() {
 
 void testAddSearchCaseInsensitive() {
     PhoneBook book;
-    book.addContact("Ahmad Faizal", "011-2233 4455");
+    book.addContact("Ahmad Faizal", "012-000 0001");
     std::string phone;
-    check(book.searchContact("ahmad faizal", phone) && phone == "011-2233 4455",
+    check(book.searchContact("ahmad faizal", phone) && phone == "012-000 0001",
           "search ignores case");
     check(book.searchContact("  AHMAD FAIZAL  ", phone), "search ignores surrounding spaces");
 
-    book.addContact("ahmad faizal", "019-000 1111");
+    book.addContact("ahmad faizal", "012-000 0006");
     check(book.size() == 1, "adding the same name in another case updates, not duplicates");
-    check(book.searchContact("Ahmad Faizal", phone) && phone == "019-000 1111",
+    check(book.searchContact("Ahmad Faizal", phone) && phone == "012-000 0006",
           "the update keeps the new number");
 }
 
 void testOrderAndRemove() {
     PhoneBook book;
     // Inserted out of order; display must still be alphabetical.
-    book.addContact("Nurul Aina", "012-9876 5432");
-    book.addContact("Zamil Hakim", "011-1411 6914");
-    book.addContact("Ahmad Faizal", "011-2233 4455");
-    book.addContact("Siti Zubaidah", "013-4455 6677");
-    book.addContact("Mei Ling", "016-222 3333");
+    book.addContact("Nurul Aina", "012-000 0002");
+    book.addContact("Zamil Hakim", "012-000 0004");
+    book.addContact("Ahmad Faizal", "012-000 0001");
+    book.addContact("Siti Zubaidah", "012-000 0003");
+    book.addContact("Mei Ling", "012-000 0005");
 
     const std::string out = captureDisplay(book);
     const auto a = out.find("Ahmad"), m = out.find("Mei"), n = out.find("Nurul"),
@@ -99,17 +99,17 @@ void testOrderAndRemove() {
 
 void testEditAndPrefix() {
     PhoneBook book;
-    book.addContact("Siti Zubaidah", "013-4455 6677");
-    book.addContact("Siti Aminah", "014-111 2222");
-    book.addContact("Ahmad Faizal", "011-2233 4455");
+    book.addContact("Siti Zubaidah", "012-000 0003");
+    book.addContact("Siti Aminah", "012-000 0007");
+    book.addContact("Ahmad Faizal", "012-000 0001");
 
-    check(book.editContact("siti aminah", "014-999 8888"), "edits an existing contact");
+    check(book.editContact("siti aminah", "012-000 0008"), "edits an existing contact");
     std::string phone;
-    check(book.searchContact("Siti Aminah", phone) && phone == "014-999 8888",
+    check(book.searchContact("Siti Aminah", phone) && phone == "012-000 0008",
           "edit updates the map");
-    check(captureDisplay(book).find("014-999 8888") != std::string::npos,
+    check(captureDisplay(book).find("012-000 0008") != std::string::npos,
           "edit updates the tree");
-    check(!book.editContact("Nobody", "011-111 1111"), "editing an unknown name returns false");
+    check(!book.editContact("Nobody", "012-000 0011"), "editing an unknown name returns false");
 
     const auto matches = book.searchByPrefix("sITi");
     check(matches.size() == 2 && matches[0].name == "Siti Aminah" &&
@@ -122,11 +122,11 @@ void testEditAndPrefix() {
 void testSaveLoadRoundTrip() {
     {
         PhoneBook book;
-        book.addContact("Tan, Ali", "012-345 6789");
-        book.addContact("Ahmad Faizal", "011-2233 4455");
+        book.addContact("Tan, Ali", "012-000 0009");
+        book.addContact("Ahmad Faizal", "012-000 0001");
         check(book.saveToFile(TMP_FILE), "saves to file");
     }
-    check(readFile(TMP_FILE) == "Ahmad Faizal,011-2233 4455\nTan, Ali,012-345 6789\n",
+    check(readFile(TMP_FILE) == "Ahmad Faizal,012-000 0001\nTan, Ali,012-000 0009\n",
           "file is written alphabetically, one name,phone per line");
 
     PhoneBook loaded;
@@ -137,7 +137,7 @@ void testSaveLoadRoundTrip() {
 
     std::string phone;
     check(loaded.size() == 2, "loads both contacts back");
-    check(loaded.searchContact("Tan, Ali", phone) && phone == "012-345 6789",
+    check(loaded.searchContact("Tan, Ali", phone) && phone == "012-000 0009",
           "a name with a comma survives save and load");
     std::remove(TMP_FILE.c_str());
 }
@@ -145,15 +145,15 @@ void testSaveLoadRoundTrip() {
 void testLoadSkipsMalformedLines() {
     {
         std::ofstream f(TMP_FILE);
-        f << "Ahmad Faizal,011-2233 4455\n"
+        f << "Ahmad Faizal,012-000 0001\n"
           << "no comma on this line\n"
-          << ",012-345 6789\n"
+          << ",012-000 0009\n"
           << "Bad Number,not a phone\n"
           << "\n"
-          << "Nurul Aina,012-9876 5432\n";
+          << "Nurul Aina,012-000 0002\n";
     }
     PhoneBook book;
-    book.addContact("Old Contact", "011-000 0000");
+    book.addContact("Old Contact", "012-000 0000");
 
     std::ostringstream sink;
     std::streambuf* old = std::cout.rdbuf(sink.rdbuf());
@@ -177,7 +177,7 @@ void testManyContactsInOrder() {
         char buf[16];
         std::snprintf(buf, sizeof buf, "Contact %04d", i);
         names.push_back(buf);
-        book.addContact(buf, "011-000 0000");
+        book.addContact(buf, "012-000 0000");
     }
     check(book.size() == 2000, "2000 contacts added in alphabetical order");
     for (int i = 0; i < 2000; i += 2) book.removeContact(names[i]);
